@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import modelUrl from '../assets/mountain.glb?url';
+import treeUrl from '../assets/Snow Tree.glb?url';
 
 export class Terrain {
     constructor(scene) {
@@ -42,12 +43,67 @@ export class Terrain {
 
             this.mesh.add(model);
             this.isLoaded = true;
+            this.populate();
 
         }, (xhr) => {
             // Progress
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         }, (error) => {
             console.error('An error happened loading the terrain:', error);
+        });
+    }
+
+    populate() {
+        const loader = new GLTFLoader();
+        const raycaster = new THREE.Raycaster();
+        const down = new THREE.Vector3(0, -1, 0);
+
+        // Load and spawn trees
+        loader.load(treeUrl, (gltf) => {
+            const treeModel = gltf.scene;
+
+            // Setup shadows for tree model
+            treeModel.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+
+            const treeCount = 750; // Dense forest coverage for testing
+            console.log(`Spawning ${treeCount} trees...`);
+
+            for (let i = 0; i < treeCount; i++) {
+                // Much larger area to cover entire mountain (base, middle, top)
+                const x = (Math.random() - 0.5) * 2000; // Very wide spread
+                const z = (Math.random() - 0.5) * 3000; // Very long coverage
+
+                // Raycast from high above to find the mountain surface
+                raycaster.set(new THREE.Vector3(x, 2000, z), down);
+                const intersects = raycaster.intersectObject(this.mesh, true);
+
+                if (intersects.length > 0) {
+                    const hit = intersects[0];
+                    const tree = treeModel.clone();
+
+                    // Position on mountain surface
+                    tree.position.copy(hit.point);
+                    tree.position.y += 7.0; // Lift above surface to prevent burial
+
+                    // Random rotation
+                    tree.rotation.y = Math.random() * Math.PI * 2;
+
+                    // Random scale variation
+                    const scale = 20.0 * (0.8 + Math.random() * 0.4);
+                    tree.scale.set(scale, scale, scale);
+
+                    this.mesh.add(tree);
+                }
+            }
+
+            console.log('Trees spawned successfully!');
+        }, undefined, (error) => {
+            console.error('Failed to load tree model:', error);
         });
     }
 

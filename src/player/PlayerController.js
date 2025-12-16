@@ -14,7 +14,7 @@ export class PlayerController {
         this.body = null;
         this.board = null;
 
-        this.position = new THREE.Vector3(0, 10, 40);
+        this.position = new THREE.Vector3(0, 50, 40); // Lowered from 10 to spawn on mountain
         this.velocity = new THREE.Vector3();
         this.quaternion = new THREE.Quaternion(); // Master Rotation
         this.angularVelocity = new THREE.Vector3(); // Physics Rotation
@@ -43,6 +43,9 @@ export class PlayerController {
         this.score = 0;
         this.crashed = false;
         this.recoveryTimer = 0;
+        this.lives = 3; // Lives system
+        this.dead = false;
+        this.won = false;
 
         this.init();
     }
@@ -87,6 +90,17 @@ export class PlayerController {
     update(dt) {
         // SAFETY: Wait for Terrain
         if (!this.terrain.isLoaded) return;
+
+        // Check win condition
+        if (!this.won && !this.dead && this.score >= 10000) {
+            this.won = true;
+            console.log("YOU WIN!");
+        }
+
+        // Freeze gameplay if won or dead
+        if (this.won || this.dead) {
+            return;
+        }
 
         if (this.crashed) {
             this.handleCrash(dt);
@@ -307,7 +321,14 @@ export class PlayerController {
     crash() {
         this.crashed = true;
         this.recoveryTimer = 2.0;
-        console.log("CRASHED!");
+        this.lives--;
+        console.log(`CRASHED! Lives remaining: ${this.lives}`);
+
+        if (this.lives <= 0) {
+            this.dead = true;
+            console.log("GAME OVER!");
+        }
+
         this.velocity.set(0, 0, 0);
         this.angularVelocity.set(0, 0, 0);
         this.mesh.rotation.z = Math.PI / 2; // Lie on side (visual only? No, this messes with Quaternion tracking but ok for now)
@@ -317,6 +338,11 @@ export class PlayerController {
     }
 
     handleCrash(dt) {
+        if (this.dead) {
+            // Stay crashed if dead
+            return;
+        }
+
         this.recoveryTimer -= dt;
         if (this.recoveryTimer <= 0) {
             this.crashed = false;
