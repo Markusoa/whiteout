@@ -36,8 +36,8 @@ export class PlayerController {
         this.maxJumpCharge = 1.0;
 
         // Input Sensitivities (Torque)
-        this.airSpinTorque = 15.0; // Increased from 10.0 for faster spins
-        this.airFlipTorque = 12.0; // Increased from 8.0 for faster flips
+        this.airSpinTorque = 25.0; // Increased from 15.0 for even faster spins
+        this.airFlipTorque = 15.0; // Increased from 12.0 for faster flips
 
         this.airTime = 0;
         this.score = 0;

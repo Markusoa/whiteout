@@ -227,6 +227,46 @@ export class HUD {
         this.playBtn.addEventListener('mouseleave', () => {
             this.playBtn.style.backgroundColor = '#00ffcc';
         });
+        // Theme Selection
+        const themeContainer = document.createElement('div');
+        themeContainer.style.display = 'flex';
+        themeContainer.style.gap = '20px';
+        themeContainer.style.marginBottom = '20px';
+
+        const createThemeBtn = (text, theme) => {
+            const btn = document.createElement('button');
+            btn.innerText = text;
+            btn.style.fontSize = '20px';
+            btn.style.fontWeight = 'bold';
+            btn.style.padding = '10px 30px';
+            btn.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            btn.style.color = 'white';
+            btn.style.border = '2px solid white';
+            btn.style.borderRadius = '10px';
+            btn.style.cursor = 'pointer';
+            btn.addEventListener('click', () => {
+                if (this.game) this.game.setTheme(theme);
+                // Highlight selected
+                Array.from(themeContainer.children).forEach(c => {
+                    c.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    c.style.color = 'white';
+                });
+                btn.style.backgroundColor = 'white';
+                btn.style.color = 'black';
+            });
+            return btn;
+        };
+
+        const darkBtn = createThemeBtn('DARK MODE', 'dark');
+        darkBtn.style.backgroundColor = 'white'; // Default selected
+        darkBtn.style.color = 'black';
+
+        const brightBtn = createThemeBtn('BRIGHT MODE', 'bright');
+
+        themeContainer.appendChild(darkBtn);
+        themeContainer.appendChild(brightBtn);
+        this.startScreen.appendChild(themeContainer);
+
         this.startScreen.appendChild(this.playBtn);
 
         document.body.appendChild(this.startScreen);

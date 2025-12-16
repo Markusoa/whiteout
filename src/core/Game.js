@@ -53,13 +53,13 @@ export class Game {
         window.addEventListener('resize', this.onWindowResize.bind(this));
 
         // Lighting - Darker for night
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2); // Reduced from 0.6
-        this.scene.add(ambientLight);
+        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.2); // Reduced from 0.6
+        this.scene.add(this.ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.3); // Reduced from 0.8
-        dirLight.position.set(50, 100, 50);
-        dirLight.castShadow = true;
-        this.scene.add(dirLight);
+        this.dirLight = new THREE.DirectionalLight(0xffffff, 0.3); // Reduced from 0.8
+        this.dirLight.position.set(50, 100, 50);
+        this.dirLight.castShadow = true;
+        this.scene.add(this.dirLight);
 
         // Initialize Subsystems
         this.input = new Input();
@@ -70,6 +70,36 @@ export class Game {
 
         // Create Snowfall
         this.createSnowfall();
+
+        // Pass game instance to HUD for theme switching
+        this.hud.game = this;
+    }
+
+    setTheme(theme) {
+        if (theme === 'bright') {
+            // Bright Day Theme
+            const skyColor = 0xd6eaf8;
+            this.scene.background = new THREE.Color(skyColor);
+            this.scene.fog = new THREE.FogExp2(skyColor, 0.002);
+
+            // Update lights
+            // We need to find the lights we added. 
+            // Better to store them in properties, but for now we can traverse or just add new ones (bad).
+            // Let's just clear and re-add or update if we stored them.
+            // Since we didn't store them, let's store them now in init() and update here.
+
+            if (this.ambientLight) this.ambientLight.intensity = 0.6;
+            if (this.dirLight) this.dirLight.intensity = 0.8;
+
+        } else {
+            // Dark Night Theme (Default)
+            const skyColor = 0x1a1a2e;
+            this.scene.background = new THREE.Color(skyColor);
+            this.scene.fog = new THREE.FogExp2(skyColor, 0.0015);
+
+            if (this.ambientLight) this.ambientLight.intensity = 0.2;
+            if (this.dirLight) this.dirLight.intensity = 0.3;
+        }
     }
 
     createSnowfall() {
