@@ -28,12 +28,15 @@ export class PlayerController {
         this.friction = 0.2;
         this.turnSpeed = 3.0;
         this.maxSpeed = 60.0;
-        this.jumpForce = 35.0;
+        this.jumpForce = 10.0; // Reduced to 25.0
         this.jumpCharge = 0;
         this.maxJumpCharge = 1.0;
 
         this.heading = 0;
-        this.pitch = 0; // Vertical rotation (Flips)
+        this.pitch = 0;
+        this.roll = 0;
+
+        this.airTime = 0;
 
         this.score = 0;
         this.lastTruncName = "";
@@ -53,7 +56,7 @@ export class PlayerController {
             const model = gltf.scene;
             this.body = model;
 
-            // Setup Visuals
+            // Visuals
             model.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
@@ -64,9 +67,7 @@ export class PlayerController {
             // Positioning
             model.position.y = 0.1;
             model.scale.set(0.5, 0.5, 0.5);
-            model.rotation.y = Math.PI; // Face Backwards to camera (snowboarding standard is sidewys?)
-            // If snowboard is sidewys, then mesh should be rotated -90?
-            // Current art is likely symmetric or facing +Z.
+            model.rotation.y = Math.PI;
 
             this.mesh.add(model);
 
@@ -79,8 +80,8 @@ export class PlayerController {
             this.mesh.add(this.body);
         });
 
-        // Snowboard
-        const boardGeo = new THREE.BoxGeometry(0.4, 0.1, 1.6);
+        // Snowboard - 2x Size
+        const boardGeo = new THREE.BoxGeometry(0.8, 0.1, 3.2);
         const boardMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
         this.board = new THREE.Mesh(boardGeo, boardMat);
         this.board.position.y = 0.05;
@@ -97,44 +98,63 @@ export class PlayerController {
         this.mesh.position.copy(this.position);
 
         // Visual Rotation
+        this.mesh.rotation.order = 'YXZ';
         this.mesh.rotation.y = this.heading;
         this.mesh.rotation.x = this.pitch;
 
-        // Bank (Tilt) 
+        // Bank (Tilt) / Roll
         if (this.grounded) {
             const lean = (this.input.actions.left ? 1 : 0) - (this.input.actions.right ? 1 : 0);
             const targetLean = lean * 0.5;
-            this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, targetLean, dt * 5);
+            this.roll = THREE.MathUtils.lerp(this.roll, targetLean, dt * 5);
         } else {
-            this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, 0, dt * 2);
+            // Air Roll Decay
+            this.roll = THREE.MathUtils.lerp(this.roll, 0, dt * 2);
         }
+        this.mesh.rotation.z = this.roll;
     }
 
     handleInput(dt) {
         let rotationDelta = 0;
+        const isFlipping = this.input.actions.forward || this.input.actions.backward;
+        const isSpinning = this.input.actions.left || this.input.actions.right;
 
-        // Turning
+        // Turning & Spinning
         let turn = 0;
-        if (this.input.actions.left) { turn += 1; }
-        if (this.input.actions.right) { turn -= 1; }
 
-        if (!this.grounded) {
-            // Faster Air Spin
-            if (this.input.actions.spinLeft) turn += 2.0;
-            else if (this.input.actions.spinRight) turn -= 2.0;
-            // Boost standard A/D spin too
-            turn *= 2.0;
+        if (this.grounded) {
+            // Ground Turning
+            if (this.input.actions.left) { turn += 1; }
+            if (this.input.actions.right) { turn -= 1; }
+            rotationDelta = turn * this.turnSpeed * dt;
+            this.heading += rotationDelta;
+        } else {
+            // AIR LOGIC - EXCLUSIVE TRICKS
+
+            if (isFlipping) {
+                // FLIP MODE
+                rotationDelta = 0;
+
+            } else if (isSpinning) {
+                // SPIN MODE (Only if not flipping)
+                if (this.input.actions.left) { turn += 1; }
+                if (this.input.actions.right) { turn -= 1; }
+
+                if (this.input.actions.spinLeft) turn += 2.0;
+                else if (this.input.actions.spinRight) turn -= 2.0;
+
+                turn *= 2.0;
+                rotationDelta = turn * this.turnSpeed * dt;
+                this.heading += rotationDelta;
+            }
         }
-
-        rotationDelta = turn * this.turnSpeed * dt;
-        this.heading += rotationDelta;
 
         // Flips
         if (!this.grounded) {
             const flipSpeed = 5.0;
-            if (this.input.actions.forward) { // W -> Frontflip (Pitch Down -)
+            if (this.input.actions.forward) { // Frontflip
                 this.pitch -= flipSpeed * dt;
-            } else if (this.input.actions.backward) { // S -> Backflip (Pitch Up +)
+            } else if (this.input.actions.backward) { // Backflip
                 this.pitch += flipSpeed * dt;
             }
         } else {
@@ -144,22 +164,27 @@ export class PlayerController {
         }
 
         if (!this.grounded) {
-            // Pass pitch for trick detection?
-            // Currently TrickSystem only does Y-axis. 
-            // We can update it later.
             this.trickSystem.update(dt, rotationDelta);
         }
 
-        // Jumping
-        if (this.grounded) {
+        // Jumping - Coyote Time Support
+        if (this.grounded || this.airTime < 0.25) {
             if (this.input.actions.jump) {
-                this.jumpCharge = Math.min(this.jumpCharge + dt * 0.5, this.maxJumpCharge);
+                this.jumpCharge = Math.min(this.jumpCharge + dt * 1.5, this.maxJumpCharge);
                 if (this.body) this.body.scale.y = 1.0 - (this.jumpCharge * 0.4);
             } else {
                 if (this.jumpCharge > 0) {
                     this.grounded = false;
-                    const finalForce = this.jumpForce * (0.3 + this.jumpCharge * 0.7);
+                    this.airTime = 1.0;
+
+                    // Boosted Power Tuned
+                    // Base 25. Multiplier 0.8 (20) to 2.5 (62.5).
+                    const finalForce = this.jumpForce * (0.8 + this.jumpCharge * 1.5);
+                    // Increased max multiplier slightly to ensure FULL charge is still fun
+
+                    if (this.velocity.y < 0) this.velocity.y = 0;
                     this.velocity.y += finalForce;
+
                     this.jumpCharge = 0;
                     if (this.body) this.body.scale.y = 1.0;
                     this.trickSystem.startJump();
@@ -167,8 +192,10 @@ export class PlayerController {
                 if (this.body) this.body.scale.y = 1.0;
             }
         } else {
-            this.jumpCharge = 0;
-            if (this.body) this.body.scale.y = 1.0;
+            if (this.airTime > 0.25) {
+                this.jumpCharge = 0;
+                if (this.body) this.body.scale.y = 1.0;
+            }
         }
     }
 
@@ -231,10 +258,12 @@ export class PlayerController {
                     this.lastTruncName = trick.name;
                     console.log("Trick:", trick.name);
                 }
-                this.pitch = 0; // Reset pitch physics-side just in case
+                this.pitch = 0;
+                this.roll = 0;
             }
 
             this.grounded = true;
+            this.airTime = 0;
             this.position.y = groundHeight;
 
             // Physics
@@ -246,14 +275,13 @@ export class PlayerController {
             if (this.input.actions.backward) currentFriction = 5.0;
             this.velocity.multiplyScalar(1 - currentFriction * dt);
 
-            // Switch & Steering Logic
+            // Switch & Steering
             const speed = this.velocity.length();
             if (speed > 0.1) {
                 const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.heading);
                 const velDir = this.velocity.clone().normalize();
                 const dot = velDir.dot(forward);
 
-                // Allow switch riding
                 const targetFacing = dot >= 0 ? forward : forward.clone().negate();
 
                 const slopeDir = targetFacing.clone().sub(groundNormal.clone().multiplyScalar(targetFacing.dot(groundNormal))).normalize();
@@ -269,13 +297,25 @@ export class PlayerController {
         } else {
             // AIR PHYSICS
             this.grounded = false;
+            this.airTime += dt;
+
             this.velocity.y -= this.gravity * dt;
 
-            // PURE MOMENTUM - No Steering
-            // We removed the air control velocity nudging.
-            // Rotations (Heading/Pitch) are visual-only for now (and for landing direction).
-
+            // PURE MOMENTUM
             this.velocity.multiplyScalar(1 - 0.05 * dt);
+
+            const isFlipping = this.input.actions.forward || this.input.actions.backward;
+            if (isFlipping) {
+                if (this.input.actions.left || this.input.actions.right) {
+                    let steerDir = new THREE.Vector3();
+                    if (this.input.actions.left) steerDir.set(-1, 0, 0);
+                    if (this.input.actions.right) steerDir.set(1, 0, 0);
+                    steerDir.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.heading);
+
+                    const airSteerSpeed = 15.0;
+                    this.velocity.add(steerDir.multiplyScalar(airSteerSpeed * dt));
+                }
+            }
         }
 
         this.position.add(this.velocity.clone().multiplyScalar(dt));
