@@ -322,6 +322,9 @@ export class PlayerController {
                         this.trickCount++;
                         this.totalTrickPoints += trick.points;
                         console.log("LANDED:", trick.name, trick.points);
+                        if (this.game && this.game.hud) {
+                            this.game.hud.showTrickText(trick.name);
+                        }
                     }
                 }
 
@@ -349,29 +352,29 @@ export class PlayerController {
             if (this.input.actions.boost && this.stamina > 0.01 && this.velocity.lengthSq() > 0.01) {
                 const currentSpeed = this.velocity.length();
                 const velDir = this.velocity.clone().normalize();
-                
+
                 // Calculate boost effectiveness based on current speed
                 // More effective at low speeds, less effective at high speeds
                 const speedRatio = Math.min(currentSpeed / this.boostMaxSpeed, 1.0);
                 const boostEffectiveness = 1.0 - (speedRatio * 0.7); // Reduces to 30% effectiveness at max speed
-                
+
                 // Apply boost: fixed base speed + speed-dependent multiplier
                 const baseBoost = this.boostBaseSpeed * boostEffectiveness;
                 const speedBoost = currentSpeed * 0.025 * boostEffectiveness; // Small multiplier, scaled down at high speeds
                 const totalBoost = baseBoost + speedBoost;
-                
+
                 // Apply boost in direction of movement
                 this.velocity.add(velDir.multiplyScalar(totalBoost * dt));
-                
+
                 // Deplete stamina
                 this.stamina = Math.max(0, this.stamina - this.staminaDepletionRate * dt);
-                
+
                 // Reset regeneration timer whenever boost is used
                 this.staminaRegenTimer = 0;
             } else {
                 // Update regeneration timer
                 this.staminaRegenTimer += dt;
-                
+
                 // Regenerate stamina only after delay has passed
                 if (this.staminaRegenTimer >= this.staminaRegenDelay && this.stamina < this.maxStamina) {
                     this.stamina = Math.min(this.maxStamina, this.stamina + this.staminaRegenRate * dt);

@@ -152,13 +152,22 @@ export class Game {
             : new THREE.Vector3(0, 100, 40);
 
         if (this.terrain && this.terrain.isLoaded) {
-            const bounds = new THREE.Box3().setFromObject(this.terrain.mesh);
-            const safeY = Number.isFinite(bounds.max.y) ? bounds.max.y + 20 : baseSpawn.y;
-            baseSpawn.y = Math.max(baseSpawn.y, safeY);
-            
-            // Apply level-specific height offset after computing spawn height
+            // Use precise height from raycasting
+            const terrainHeight = this.terrain.getHeight(baseSpawn.x, baseSpawn.z);
+            console.log(`[SpawnDebug] BaseSpawn: ${JSON.stringify(baseSpawn)}, TerrainHeight: ${terrainHeight}`);
+
+            // Apply level-specific height offset
             const heightOffset = config && config.spawnHeightOffset ? config.spawnHeightOffset : 0;
-            baseSpawn.y += heightOffset;
+
+            // Set spawn Y to terrain height + offset (e.g., 2 units up for player size)
+            if (terrainHeight !== null) {
+                baseSpawn.y = terrainHeight + heightOffset + 5; // Add +5 padding to avoid clipping
+            } else {
+                // Fallback to old bounding box entry logic if raycast failed (e.g. out of bounds)
+                const bounds = new THREE.Box3().setFromObject(this.terrain.mesh);
+                const safeY = Number.isFinite(bounds.max.y) ? bounds.max.y + 20 : baseSpawn.y;
+                baseSpawn.y = Math.max(baseSpawn.y, safeY);
+            }
         }
 
         return baseSpawn;
@@ -166,7 +175,7 @@ export class Game {
 
     setTheme(theme) {
         this.currentTheme = theme; // Store the current theme
-        
+
         if (theme === 'Day') {
             // Bright Day Theme
             const skyColor = 0xd6eaf8;
@@ -331,12 +340,12 @@ export class Game {
         if (this.hud && this.player) {
             const speed = this.player.velocity ? this.player.velocity.length() : 0;
             const speedKmh = speed * 3.6;
-            
+
             // Track max speed
             if (speedKmh > (this.player.maxSpeed || 0)) {
                 this.player.maxSpeed = speedKmh;
             }
-            
+
             const score = this.player.score || 0;
             const charge = this.player.jumpCharge || 0;
             const stamina = this.player.stamina !== undefined ? this.player.stamina : 1.0;

@@ -4,8 +4,8 @@ export class HUD {
         // TOP LEFT Container
         this.container = document.createElement('div');
         this.container.style.position = 'absolute';
-        this.container.style.top = '20px';
-        this.container.style.left = '20px';
+        this.container.style.top = '2vmin';
+        this.container.style.left = '2vmin';
         this.container.style.color = 'white';
         this.container.style.fontFamily = 'Arial, sans-serif';
         this.container.style.userSelect = 'none';
@@ -16,8 +16,8 @@ export class HUD {
         // BOTTOM RIGHT Container for Speed
         this.speedContainer = document.createElement('div');
         this.speedContainer.style.position = 'absolute';
-        this.speedContainer.style.bottom = '20px';
-        this.speedContainer.style.right = '20px';
+        this.speedContainer.style.bottom = '2vmin';
+        this.speedContainer.style.right = '2vmin';
         this.speedContainer.style.color = 'white';
         this.speedContainer.style.fontFamily = 'Arial, sans-serif';
         this.speedContainer.style.userSelect = 'none';
@@ -26,14 +26,14 @@ export class HUD {
         document.body.appendChild(this.speedContainer);
 
         this.speedElement = document.createElement('div');
-        this.speedElement.style.fontSize = '32px';
+        this.speedElement.style.fontSize = 'min(32px, 5vmin)';
         this.speedElement.style.fontWeight = 'bold';
         this.speedElement.style.textAlign = 'right';
         this.speedElement.innerText = '0 km/h';
         this.speedContainer.appendChild(this.speedElement);
 
         this.scoreElement = document.createElement('div');
-        this.scoreElement.style.fontSize = '24px';
+        this.scoreElement.style.fontSize = 'min(24px, 4vmin)';
         this.scoreElement.style.fontWeight = 'bold';
         this.scoreElement.style.color = '#ffcc00';
         this.scoreElement.innerText = 'SCORE: 0';
@@ -41,19 +41,19 @@ export class HUD {
 
         // Lives display
         this.livesElement = document.createElement('div');
-        this.livesElement.style.fontSize = '28px';
+        this.livesElement.style.fontSize = 'min(28px, 4.5vmin)';
         this.livesElement.style.fontWeight = 'bold';
         this.livesElement.style.color = '#ff4444';
-        this.livesElement.style.marginTop = '10px';
+        this.livesElement.style.marginTop = '1vmin';
         this.livesElement.innerText = '❤️ ❤️ ❤️';
         this.container.appendChild(this.livesElement);
 
         // BOTTOM LEFT Container for Stamina
         this.staminaContainer = document.createElement('div');
         this.staminaContainer.style.position = 'absolute';
-        this.staminaContainer.style.bottom = '20px';
-        this.staminaContainer.style.left = '20px';
-        this.staminaContainer.style.width = '300px';
+        this.staminaContainer.style.bottom = '2vmin';
+        this.staminaContainer.style.left = '2vmin';
+        this.staminaContainer.style.width = 'min(300px, 30vw)';
         this.staminaContainer.style.textAlign = 'left';
         this.staminaContainer.style.pointerEvents = 'none';
         this.staminaContainer.style.zIndex = '1000';
@@ -135,7 +135,7 @@ export class HUD {
         this.crashMsg.style.top = '50%';
         this.crashMsg.style.left = '50%';
         this.crashMsg.style.transform = 'translate(-50%, -50%)';
-        this.crashMsg.style.fontSize = '80px';
+        this.crashMsg.style.fontSize = 'min(80px, 12vmin)';
         this.crashMsg.style.fontWeight = 'bold';
         this.crashMsg.style.color = '#ff0000';
         this.crashMsg.style.textShadow = '0 0 20px black';
@@ -149,7 +149,7 @@ export class HUD {
         this.gameOverMsg.style.top = '50%';
         this.gameOverMsg.style.left = '50%';
         this.gameOverMsg.style.transform = 'translate(-50%, -50%)';
-        this.gameOverMsg.style.fontSize = '100px';
+        this.gameOverMsg.style.fontSize = 'min(100px, 15vmin)';
         this.gameOverMsg.style.fontWeight = 'bold';
         this.gameOverMsg.style.color = '#ff0000';
         this.gameOverMsg.style.textShadow = '0 0 30px black';
@@ -163,7 +163,7 @@ export class HUD {
         this.winMsg.style.top = '40%';
         this.winMsg.style.left = '50%';
         this.winMsg.style.transform = 'translate(-50%, -50%)';
-        this.winMsg.style.fontSize = '100px';
+        this.winMsg.style.fontSize = 'min(100px, 15vmin)';
         this.winMsg.style.fontWeight = 'bold';
         this.winMsg.style.color = '#00ff00';
         this.winMsg.style.textShadow = '0 0 30px black';
@@ -188,27 +188,28 @@ export class HUD {
 
         const completeTitle = document.createElement('div');
         completeTitle.innerText = '🎉 GAME COMPLETE! 🎉';
-        completeTitle.style.fontSize = '80px';
+        completeTitle.style.fontSize = 'min(80px, 10vmin)';
         completeTitle.style.fontWeight = 'bold';
         completeTitle.style.color = '#00ff00';
-        completeTitle.style.marginBottom = '40px';
+        completeTitle.style.marginBottom = '5vmin';
         completeTitle.style.textShadow = '0 0 30px #00ff00';
         this.gameCompleteScreen.appendChild(completeTitle);
 
         this.statsContainer = document.createElement('div');
-        this.statsContainer.style.fontSize = '32px';
+        this.statsContainer.style.fontSize = 'min(32px, 5vmin)';
         this.statsContainer.style.color = 'white';
         this.statsContainer.style.textAlign = 'center';
         this.statsContainer.style.lineHeight = '1.8';
-        this.statsContainer.style.marginBottom = '40px';
+        this.statsContainer.style.marginBottom = '5vmin';
+        this.statsContainer.style.width = '90%';
         this.gameCompleteScreen.appendChild(this.statsContainer);
 
         // Restart button for game completion
         const completeRestartBtn = document.createElement('button');
         completeRestartBtn.innerText = 'PLAY AGAIN';
-        completeRestartBtn.style.fontSize = '40px';
+        completeRestartBtn.style.fontSize = 'min(40px, 5vmin)';
         completeRestartBtn.style.fontWeight = 'bold';
-        completeRestartBtn.style.padding = '20px 60px';
+        completeRestartBtn.style.padding = 'min(20px, 3vmin) min(60px, 8vmin)';
         completeRestartBtn.style.backgroundColor = '#00ffcc';
         completeRestartBtn.style.color = '#000';
         completeRestartBtn.style.border = 'none';
@@ -234,9 +235,9 @@ export class HUD {
         this.restartBtn.style.top = '60%';
         this.restartBtn.style.left = '50%';
         this.restartBtn.style.transform = 'translate(-50%, -50%)';
-        this.restartBtn.style.fontSize = '40px';
+        this.restartBtn.style.fontSize = 'min(40px, 5vmin)';
         this.restartBtn.style.fontWeight = 'bold';
-        this.restartBtn.style.padding = '20px 60px';
+        this.restartBtn.style.padding = 'min(20px, 3vmin) min(60px, 8vmin)';
         this.restartBtn.style.backgroundColor = '#00ffcc';
         this.restartBtn.style.color = '#000';
         this.restartBtn.style.border = 'none';
@@ -263,9 +264,9 @@ export class HUD {
         this.nextLevelBtn.style.top = '60%';
         this.nextLevelBtn.style.left = '35%';
         this.nextLevelBtn.style.transform = 'translate(-50%, -50%)';
-        this.nextLevelBtn.style.fontSize = '40px';
+        this.nextLevelBtn.style.fontSize = 'min(40px, 5vmin)';
         this.nextLevelBtn.style.fontWeight = 'bold';
-        this.nextLevelBtn.style.padding = '20px 60px';
+        this.nextLevelBtn.style.padding = 'min(20px, 3vmin) min(60px, 8vmin)';
         this.nextLevelBtn.style.backgroundColor = '#ffcc00';
         this.nextLevelBtn.style.color = '#000';
         this.nextLevelBtn.style.border = 'none';
@@ -315,25 +316,26 @@ export class HUD {
         // Title
         const title = document.createElement('div');
         title.innerText = 'SNOWBOARD SHRED';
-        title.style.fontSize = '80px';
+        title.style.fontSize = 'min(80px, 10vmin)';
         title.style.fontWeight = 'bold';
         title.style.color = '#00ffcc';
-        title.style.marginBottom = '40px';
+        title.style.marginBottom = '5vmin';
         title.style.textShadow = '0 0 20px #00ffcc';
+        title.style.textAlign = 'center';
         this.startScreen.appendChild(title);
 
         // Instructions
         const instructions = document.createElement('div');
         instructions.innerHTML = `
-            <div style="font-size: 24px; color: white; text-align: center; line-height: 1.8; max-width: 600px;">
-                <p style="margin: 10px 0;"><strong style="color: #ffcc00;">OBJECTIVE:</strong></p>
-                <p style="margin: 5px 0;">🏆 Reach <strong style="color: #00ff00;">6,000 points</strong> to WIN!</p>
-                <p style="margin: 5px 0;">💀 Crash <strong style="color: #ff0000;">3 times</strong> and you LOSE!</p>
+            <div style="font-size: min(24px, 4vmin); color: white; text-align: center; line-height: 1.8; max-width: 90%;">
+                <p style="margin: 1vmin 0;"><strong style="color: #ffcc00;">OBJECTIVE:</strong></p>
+                <p style="margin: 0.5vmin 0;">🏆 Reach <strong style="color: #00ff00;">6,000 points</strong> to WIN!</p>
+                <p style="margin: 0.5vmin 0;">💀 Crash <strong style="color: #ff0000;">3 times</strong> and you LOSE!</p>
                 <br>
-                <p style="margin: 10px 0;"><strong style="color: #ffcc00;">CONTROLS:</strong></p>
-                <p style="margin: 5px 0;">⌨️ <strong>WASD</strong> - Steer & Flip/Spin in air</p>
-                <p style="margin: 5px 0;">⌨️ <strong>SPACE</strong> - Hold to charge jump</p>
-                <p style="margin: 5px 0;">🎯 Land tricks to score points!</p>
+                <p style="margin: 1vmin 0;"><strong style="color: #ffcc00;">CONTROLS:</strong></p>
+                <p style="margin: 0.5vmin 0;">⌨️ <strong>WASD</strong> - Steer & Flip/Spin in air</p>
+                <p style="margin: 0.5vmin 0;">⌨️ <strong>SPACE</strong> - Hold to charge jump</p>
+                <p style="margin: 0.5vmin 0;">🎯 Land tricks to score points!</p>
             </div>
         `;
         this.startScreen.appendChild(instructions);
@@ -341,10 +343,10 @@ export class HUD {
         // Play Button
         this.playBtn = document.createElement('button');
         this.playBtn.innerText = 'PLAY';
-        this.playBtn.style.fontSize = '50px';
+        this.playBtn.style.fontSize = 'min(50px, 8vmin)';
         this.playBtn.style.fontWeight = 'bold';
-        this.playBtn.style.padding = '20px 80px';
-        this.playBtn.style.marginTop = '40px';
+        this.playBtn.style.padding = 'min(20px, 3vmin) min(80px, 10vmin)';
+        this.playBtn.style.marginTop = '5vmin';
         this.playBtn.style.backgroundColor = '#00ffcc';
         this.playBtn.style.color = '#000';
         this.playBtn.style.border = 'none';
@@ -441,20 +443,20 @@ export class HUD {
 
         const pauseTitle = document.createElement('div');
         pauseTitle.innerText = 'PAUSED';
-        pauseTitle.style.fontSize = '80px';
+        pauseTitle.style.fontSize = 'min(80px, 12vmin)';
         pauseTitle.style.fontWeight = 'bold';
         pauseTitle.style.color = 'white';
-        pauseTitle.style.marginBottom = '40px';
+        pauseTitle.style.marginBottom = '5vmin';
         pauseTitle.style.textShadow = '0 0 20px white';
         this.pauseMenu.appendChild(pauseTitle);
 
         // Resume Button
         this.resumeBtn = document.createElement('button');
         this.resumeBtn.innerText = 'RESUME';
-        this.resumeBtn.style.fontSize = '40px';
+        this.resumeBtn.style.fontSize = 'min(40px, 6vmin)';
         this.resumeBtn.style.fontWeight = 'bold';
-        this.resumeBtn.style.padding = '15px 60px';
-        this.resumeBtn.style.marginBottom = '20px';
+        this.resumeBtn.style.padding = 'min(15px, 2.5vmin) min(60px, 8vmin)';
+        this.resumeBtn.style.marginBottom = '3vmin';
         this.resumeBtn.style.backgroundColor = '#00ffcc';
         this.resumeBtn.style.color = '#000';
         this.resumeBtn.style.border = 'none';
@@ -468,9 +470,9 @@ export class HUD {
         // Restart Button (Pause Menu)
         this.pauseRestartBtn = document.createElement('button');
         this.pauseRestartBtn.innerText = 'RESTART';
-        this.pauseRestartBtn.style.fontSize = '40px';
+        this.pauseRestartBtn.style.fontSize = 'min(40px, 6vmin)';
         this.pauseRestartBtn.style.fontWeight = 'bold';
-        this.pauseRestartBtn.style.padding = '15px 60px';
+        this.pauseRestartBtn.style.padding = 'min(15px, 2.5vmin) min(60px, 8vmin)';
         this.pauseRestartBtn.style.backgroundColor = '#ff4444';
         this.pauseRestartBtn.style.color = 'white';
         this.pauseRestartBtn.style.border = 'none';
@@ -499,9 +501,9 @@ export class HUD {
         const createPauseThemeBtn = (text, theme) => {
             const btn = document.createElement('button');
             btn.innerText = text;
-            btn.style.fontSize = '24px';
+            btn.style.fontSize = 'min(24px, 4vmin)';
             btn.style.fontWeight = 'bold';
-            btn.style.padding = '10px 30px';
+            btn.style.padding = 'min(10px, 1.5vmin) min(30px, 4vmin)';
             btn.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
             btn.style.color = 'white';
             btn.style.border = '2px solid white';
@@ -619,7 +621,7 @@ export class HUD {
         // Update stamina bar
         const staminaPct = Math.min(1.0, Math.max(0, stamina)) * 100;
         this.staminaBar.style.width = `${staminaPct}%`;
-        
+
         // Change color based on stamina level
         if (staminaPct > 50) {
             this.staminaBar.style.backgroundColor = '#00ff00'; // Green
@@ -688,5 +690,37 @@ export class HUD {
             this.winMsg.style.display = 'none';
             this.restartBtn.style.display = 'none';
         }
+    }
+    showTrickText(text) {
+        const trickEl = document.createElement('div');
+        trickEl.innerText = text;
+        trickEl.style.position = 'absolute';
+        trickEl.style.top = '40%';
+        trickEl.style.left = '50%';
+        trickEl.style.transform = 'translate(-50%, -50%)';
+        trickEl.style.color = '#ffcc00';
+        trickEl.style.fontFamily = 'Arial, sans-serif';
+        trickEl.style.fontSize = 'min(32px, 5vmin)';
+        trickEl.style.fontWeight = 'bold';
+        trickEl.style.textShadow = '2px 2px 4px #000000';
+        trickEl.style.pointerEvents = 'none';
+        trickEl.style.opacity = '0';
+        trickEl.style.transition = 'opacity 0.2s, transform 0.5s';
+
+        document.body.appendChild(trickEl); // Append to body to ensure it's on top
+
+        // Animate
+        requestAnimationFrame(() => {
+            trickEl.style.opacity = '1';
+            trickEl.style.transform = 'translate(-50%, -100%) scale(1.2)';
+        });
+
+        // Remove after delay
+        setTimeout(() => {
+            trickEl.style.opacity = '0';
+            setTimeout(() => {
+                trickEl.remove();
+            }, 500);
+        }, 1500);
     }
 }

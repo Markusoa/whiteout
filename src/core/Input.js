@@ -1,3 +1,5 @@
+import { MobileControls } from './MobileControls.js';
+
 export class Input {
     constructor() {
         this.keys = {};
@@ -17,6 +19,7 @@ export class Input {
         this.isLocked = false;
 
         this.init();
+        this.mobileControls = new MobileControls(this);
     }
 
     init() {
@@ -75,3 +78,5 @@ export class Input {
         this.actions.boost = this.keys['ShiftLeft'] || this.keys['ShiftRight'];
     }
 }
+
+

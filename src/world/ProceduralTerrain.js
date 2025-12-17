@@ -112,7 +112,7 @@ export class ProceduralTerrain {
 
                     if (intersects.length > 0) {
                         const hit = intersects[0];
-                        
+
                         // Always place trees on mountain surface (removed slope check)
                         const tree = treeModel.clone();
                         tree.position.copy(hit.point);
@@ -134,6 +134,20 @@ export class ProceduralTerrain {
         });
     }
 
-    getHeight(x, z) { return 0; }
+    getHeight(x, z) {
+        if (!this.mesh) return null;
+
+        const raycaster = new THREE.Raycaster();
+        const down = new THREE.Vector3(0, -1, 0);
+
+        raycaster.set(new THREE.Vector3(x, 2000, z), down);
+        const intersects = raycaster.intersectObject(this.mesh, true);
+
+        if (intersects.length > 0) {
+            return intersects[0].point.y;
+        }
+
+        return null;
+    }
     getNormal(x, z) { return new THREE.Vector3(0, 1, 0); }
 }
