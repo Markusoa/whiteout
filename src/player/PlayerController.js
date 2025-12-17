@@ -49,6 +49,20 @@ export class PlayerController {
         this.dead = false;
         this.won = false;
 
+        // Statistics tracking
+        this.maxSpeed = 0; // Max speed in km/h
+        this.trickCount = 0; // Number of tricks landed
+        this.totalTrickPoints = 0; // Total points from tricks
+
+        // Stamina system
+        this.stamina = 1.0; // Current stamina (0-1)
+        this.maxStamina = 1.0;
+        this.staminaDepletionRate = 2; // How fast stamina depletes when boosting (much faster now)
+        this.staminaRegenRate = 0.5; // How fast stamina regenerates (faster regen to compensate)
+        this.staminaRegenDelay = 1.0; // Delay in seconds before stamina starts regenerating
+        this.staminaRegenTimer = 0; // Timer tracking time since last boost
+        this.boostMultiplier = 1.025; // Speed multiplier when boosting (subtle boost)
+
         this.init();
     }
 
@@ -106,6 +120,15 @@ export class PlayerController {
         this.airTime = 0;
         this.jumpCharge = 0;
         this.recoveryTimer = 0;
+
+        // Reset statistics
+        this.maxSpeed = 0;
+        this.trickCount = 0;
+        this.totalTrickPoints = 0;
+
+        // Reset stamina
+        this.stamina = 1.0;
+        this.staminaRegenTimer = 0;
 
         // Reset trick system
         this.trickSystem = new TrickSystem();
@@ -295,6 +318,8 @@ export class PlayerController {
                     const trick = this.trickSystem.land(this.quaternion); // Pass current Rot
                     if (trick.points > 0) {
                         this.score += trick.points;
+                        this.trickCount++;
+                        this.totalTrickPoints += trick.points;
                         console.log("LANDED:", trick.name, trick.points);
                     }
                 }
@@ -316,6 +341,30 @@ export class PlayerController {
                 this.velocity.multiplyScalar(1 - 5.0 * dt);
             } else {
                 this.velocity.multiplyScalar(1 - this.friction * dt);
+            }
+
+            // Speed Boost (Shift key) - consumes stamina (subtle speed increase)
+            // Only boost if stamina is available - if out of stamina, ignore shift input completely
+            const canBoost = this.stamina > 0.01 && this.velocity.lengthSq() > 0.1;
+            if (this.input.actions.boost && canBoost) {
+                // Apply subtle boost multiplier to velocity (small increase to help over bumps)
+                const currentSpeed = this.velocity.length();
+                const boostSpeed = currentSpeed * this.boostMultiplier;
+                this.velocity.normalize().multiplyScalar(boostSpeed);
+                
+                // Deplete stamina
+                this.stamina = Math.max(0, this.stamina - this.staminaDepletionRate * dt);
+                
+                // Reset regeneration timer whenever boost is used
+                this.staminaRegenTimer = 0;
+            } else {
+                // Update regeneration timer
+                this.staminaRegenTimer += dt;
+                
+                // Regenerate stamina only after delay has passed
+                if (this.staminaRegenTimer >= this.staminaRegenDelay && this.stamina < this.maxStamina) {
+                    this.stamina = Math.min(this.maxStamina, this.stamina + this.staminaRegenRate * dt);
+                }
             }
 
             // Slope Gravity

@@ -12,8 +12,8 @@ export class LevelManager {
                 ambientIntensity: 0.2,
                 directionalIntensity: 0.3,
                 winCondition: 6000,
-                spawnPosition: { x: 0, y: 50, z: 40 },
-                spawnHeightOffset: -10 // Lower spawn by subtracting from computed height
+                spawnPosition: { x: 0, y: 1, z: 40 },
+                spawnHeightOffset: 0 // Lower spawn by subtracting from computed height
             },
             2: {
                 terrainType: 'level2', // Uses Level2_Mountain.glb
@@ -23,8 +23,8 @@ export class LevelManager {
                 ambientIntensity: 0.2,
                 directionalIntensity: 0.3,
                 winCondition: 8000,
-                spawnPosition: { x: 0, y: 300, z: 200 },
-                spawnHeightOffset: 200 // Higher spawn by adding to computed height
+                spawnPosition: { x: 0, y: 500, z: 200 },
+                spawnHeightOffset: 500 // Higher spawn by adding to computed height
             }
         };
     }

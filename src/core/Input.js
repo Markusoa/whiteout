@@ -8,7 +8,8 @@ export class Input {
             right: false,
             jump: false,
             spinLeft: false,
-            spinRight: false
+            spinRight: false,
+            boost: false
         };
 
         this.mouse = { x: 0, y: 0 };
@@ -71,5 +72,6 @@ export class Input {
         this.actions.jump = this.keys['Space'];
         this.actions.spinLeft = this.keys['KeyQ'];
         this.actions.spinRight = this.keys['KeyE'];
+        this.actions.boost = this.keys['ShiftLeft'] || this.keys['ShiftRight'];
     }
 }

@@ -91,31 +91,23 @@ export class Terrain {
 
                     if (intersects.length > 0) {
                         const hit = intersects[0];
+                        
+                        // Always place trees on mountain surface (removed slope check)
+                        const tree = treeModel.clone();
 
-                        // Get surface normal for slope check
-                        const obj = hit.object;
-                        const nMat = new THREE.Matrix3().getNormalMatrix(obj.matrixWorld);
-                        const normal = hit.face.normal.clone().applyMatrix3(nMat).normalize();
+                        // Position on mountain surface
+                        tree.position.copy(hit.point);
+                        tree.position.y += 7.0; // Lift above surface to prevent burial
 
-                        // Only place trees on relatively flat surfaces (slope check)
-                        // normal.y > 0.6 means angle < ~53 degrees from vertical
-                        if (normal.y > 0.6) {
-                            const tree = treeModel.clone();
+                        // Random rotation
+                        tree.rotation.y = Math.random() * Math.PI * 2;
 
-                            // Position on mountain surface
-                            tree.position.copy(hit.point);
-                            tree.position.y += 7.0; // Lift above surface to prevent burial
+                        // Random scale variation
+                        const scale = 20.0 * (0.8 + Math.random() * 0.4);
+                        tree.scale.set(scale, scale, scale);
 
-                            // Random rotation
-                            tree.rotation.y = Math.random() * Math.PI * 2;
-
-                            // Random scale variation
-                            const scale = 20.0 * (0.8 + Math.random() * 0.4);
-                            tree.scale.set(scale, scale, scale);
-
-                            this.mesh.add(tree);
-                            treesPlaced++;
-                        }
+                        this.mesh.add(tree);
+                        treesPlaced++;
                     }
                 }
             }

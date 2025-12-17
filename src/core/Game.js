@@ -5,7 +5,6 @@ import { Terrain } from '../world/Terrain.js';
 import { PlayerController } from '../player/PlayerController.js';
 import { CameraController } from '../camera/CameraController.js';
 import { HUD } from '../ui/HUD.js';
-import { TrailSystem } from '../world/TrailSystem.js';
 import { LevelManager } from './LevelManager.js';
 import { ProceduralTerrain } from '../world/ProceduralTerrain.js';
 import { Level2Terrain } from '../world/Level2Terrain.js';
@@ -28,8 +27,8 @@ export class Game {
         this.cameraController = null;
         this.hud = null;
         this.snowParticles = null;
-        this.trailSystem = null;
         this.levelManager = null;
+        this.currentTheme = 'Night'; // Default theme
 
         this.init();
     }
@@ -100,11 +99,8 @@ export class Game {
             this.terrain = new Level2Terrain(this.scene);
         }
 
-        // Apply level lighting
-        this.scene.background = new THREE.Color(config.skyColor);
-        this.scene.fog = new THREE.FogExp2(config.fogColor, config.fogDensity);
-        this.ambientLight.intensity = config.ambientIntensity;
-        this.dirLight.intensity = config.directionalIntensity;
+        // Apply stored theme instead of level config (allows theme to persist across levels)
+        this.setTheme(this.currentTheme);
 
         this.dirLight.color = new THREE.Color(0xffffff);
 
@@ -120,7 +116,6 @@ export class Game {
             this.player = new PlayerController(this.scene, this.input, this.terrain, this);
             applySpawnPosition();
             this.cameraController = new CameraController(this.camera, this.player.mesh, this.input);
-            this.trailSystem = new TrailSystem(this.scene);
         } else {
             this.player.terrain = this.terrain;
             this.player.game = this;
@@ -170,6 +165,8 @@ export class Game {
     }
 
     setTheme(theme) {
+        this.currentTheme = theme; // Store the current theme
+        
         if (theme === 'Day') {
             // Bright Day Theme
             const skyColor = 0xd6eaf8;
@@ -177,11 +174,6 @@ export class Game {
             this.scene.fog = new THREE.FogExp2(skyColor, 0.002);
 
             // Update lights
-            // We need to find the lights we added. 
-            // Better to store them in properties, but for now we can traverse or just add new ones (bad).
-            // Let's just clear and re-add or update if we stored them.
-            // Since we didn't store them, let's store them now in init() and update here.
-
             if (this.ambientLight) this.ambientLight.intensity = 0.6;
             if (this.dirLight) this.dirLight.intensity = 0.8;
 
@@ -309,7 +301,6 @@ export class Game {
 
         if (this.player) this.player.update(dt);
         if (this.cameraController) this.cameraController.update(dt);
-        if (this.trailSystem && this.player) this.trailSystem.update(dt, this.player);
 
         // Animate snowfall
         if (this.snowParticles && this.player) {
@@ -339,13 +330,22 @@ export class Game {
         // Update HUD
         if (this.hud && this.player) {
             const speed = this.player.velocity ? this.player.velocity.length() : 0;
+            const speedKmh = speed * 3.6;
+            
+            // Track max speed
+            if (speedKmh > (this.player.maxSpeed || 0)) {
+                this.player.maxSpeed = speedKmh;
+            }
+            
             const score = this.player.score || 0;
             const charge = this.player.jumpCharge || 0;
+            const stamina = this.player.stamina !== undefined ? this.player.stamina : 1.0;
             const crashed = this.player.crashed || false;
             const lives = this.player.lives || 0;
             const dead = this.player.dead || false;
             const won = this.player.won || false;
-            this.hud.update(speed * 3.6, score, charge, crashed, lives, dead, won);
+            const currentLevel = this.levelManager ? this.levelManager.currentLevel : 1;
+            this.hud.update(speedKmh, score, charge, crashed, lives, dead, won, currentLevel, stamina);
         }
     }
 

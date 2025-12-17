@@ -48,6 +48,46 @@ export class HUD {
         this.livesElement.innerText = '❤️ ❤️ ❤️';
         this.container.appendChild(this.livesElement);
 
+        // BOTTOM LEFT Container for Stamina
+        this.staminaContainer = document.createElement('div');
+        this.staminaContainer.style.position = 'absolute';
+        this.staminaContainer.style.bottom = '20px';
+        this.staminaContainer.style.left = '20px';
+        this.staminaContainer.style.width = '300px';
+        this.staminaContainer.style.textAlign = 'left';
+        this.staminaContainer.style.pointerEvents = 'none';
+        this.staminaContainer.style.zIndex = '1000';
+        document.body.appendChild(this.staminaContainer);
+
+        // Stamina Label
+        const staminaLabel = document.createElement('div');
+        staminaLabel.innerText = "STAMINA";
+        staminaLabel.style.color = 'white';
+        staminaLabel.style.fontFamily = 'Arial, sans-serif';
+        staminaLabel.style.fontSize = '14px';
+        staminaLabel.style.fontWeight = 'bold';
+        staminaLabel.style.marginBottom = '5px';
+        staminaLabel.style.textShadow = '0 1px 2px black';
+        this.staminaContainer.appendChild(staminaLabel);
+
+        // Stamina Bar Background
+        const staminaBarBg = document.createElement('div');
+        staminaBarBg.style.width = '100%';
+        staminaBarBg.style.height = '20px';
+        staminaBarBg.style.backgroundColor = 'rgba(0,0,0,0.6)';
+        staminaBarBg.style.borderRadius = '10px';
+        staminaBarBg.style.overflow = 'hidden';
+        staminaBarBg.style.border = '2px solid white';
+        this.staminaContainer.appendChild(staminaBarBg);
+
+        // Stamina Bar Fill
+        this.staminaBar = document.createElement('div');
+        this.staminaBar.style.width = '100%';
+        this.staminaBar.style.height = '100%';
+        this.staminaBar.style.backgroundColor = '#00ff00';
+        this.staminaBar.style.transition = 'width 0.05s linear';
+        staminaBarBg.appendChild(this.staminaBar);
+
         // BOTTOM CENTER Container for Jump Charge
         this.bottomContainer = document.createElement('div');
         this.bottomContainer.style.position = 'absolute';
@@ -130,6 +170,62 @@ export class HUD {
         this.winMsg.style.display = 'none';
         this.winMsg.innerText = "YOU WIN!";
         document.body.appendChild(this.winMsg);
+
+        // GAME COMPLETION SCREEN (for level 2)
+        this.gameCompleteScreen = document.createElement('div');
+        this.gameCompleteScreen.style.position = 'absolute';
+        this.gameCompleteScreen.style.top = '0';
+        this.gameCompleteScreen.style.left = '0';
+        this.gameCompleteScreen.style.width = '100%';
+        this.gameCompleteScreen.style.height = '100%';
+        this.gameCompleteScreen.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
+        this.gameCompleteScreen.style.display = 'none';
+        this.gameCompleteScreen.style.flexDirection = 'column';
+        this.gameCompleteScreen.style.justifyContent = 'center';
+        this.gameCompleteScreen.style.alignItems = 'center';
+        this.gameCompleteScreen.style.zIndex = '3500';
+        this.gameCompleteScreen.style.pointerEvents = 'auto';
+
+        const completeTitle = document.createElement('div');
+        completeTitle.innerText = '🎉 GAME COMPLETE! 🎉';
+        completeTitle.style.fontSize = '80px';
+        completeTitle.style.fontWeight = 'bold';
+        completeTitle.style.color = '#00ff00';
+        completeTitle.style.marginBottom = '40px';
+        completeTitle.style.textShadow = '0 0 30px #00ff00';
+        this.gameCompleteScreen.appendChild(completeTitle);
+
+        this.statsContainer = document.createElement('div');
+        this.statsContainer.style.fontSize = '32px';
+        this.statsContainer.style.color = 'white';
+        this.statsContainer.style.textAlign = 'center';
+        this.statsContainer.style.lineHeight = '1.8';
+        this.statsContainer.style.marginBottom = '40px';
+        this.gameCompleteScreen.appendChild(this.statsContainer);
+
+        // Restart button for game completion
+        const completeRestartBtn = document.createElement('button');
+        completeRestartBtn.innerText = 'PLAY AGAIN';
+        completeRestartBtn.style.fontSize = '40px';
+        completeRestartBtn.style.fontWeight = 'bold';
+        completeRestartBtn.style.padding = '20px 60px';
+        completeRestartBtn.style.backgroundColor = '#00ffcc';
+        completeRestartBtn.style.color = '#000';
+        completeRestartBtn.style.border = 'none';
+        completeRestartBtn.style.borderRadius = '10px';
+        completeRestartBtn.style.cursor = 'pointer';
+        completeRestartBtn.addEventListener('click', () => {
+            window.location.reload();
+        });
+        completeRestartBtn.addEventListener('mouseenter', () => {
+            completeRestartBtn.style.backgroundColor = '#00ddaa';
+        });
+        completeRestartBtn.addEventListener('mouseleave', () => {
+            completeRestartBtn.style.backgroundColor = '#00ffcc';
+        });
+        this.gameCompleteScreen.appendChild(completeRestartBtn);
+
+        document.body.appendChild(this.gameCompleteScreen);
 
         // RESTART BUTTON (for both game over and win)
         this.restartBtn = document.createElement('button');
@@ -286,7 +382,23 @@ export class HUD {
             btn.style.borderRadius = '10px';
             btn.style.cursor = 'pointer';
             btn.addEventListener('click', () => {
-                if (this.game) this.game.setTheme(theme);
+                if (this.game) {
+                    this.game.setTheme(theme);
+                    // Update pause menu theme buttons if they exist
+                    if (this.pauseThemeButtons) {
+                        this.pauseThemeButtons.night.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                        this.pauseThemeButtons.night.style.color = 'white';
+                        this.pauseThemeButtons.day.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                        this.pauseThemeButtons.day.style.color = 'white';
+                        if (theme === 'Day') {
+                            this.pauseThemeButtons.day.style.backgroundColor = 'white';
+                            this.pauseThemeButtons.day.style.color = 'black';
+                        } else {
+                            this.pauseThemeButtons.night.style.backgroundColor = 'white';
+                            this.pauseThemeButtons.night.style.color = 'black';
+                        }
+                    }
+                }
                 // Highlight selected
                 Array.from(themeContainer.children).forEach(c => {
                     c.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
@@ -369,6 +481,85 @@ export class HUD {
         });
         this.pauseMenu.appendChild(this.pauseRestartBtn);
 
+        // Theme Selection in Pause Menu
+        const pauseThemeContainer = document.createElement('div');
+        pauseThemeContainer.style.display = 'flex';
+        pauseThemeContainer.style.gap = '20px';
+        pauseThemeContainer.style.marginTop = '20px';
+        pauseThemeContainer.style.marginBottom = '20px';
+
+        const pauseThemeLabel = document.createElement('div');
+        pauseThemeLabel.innerText = 'Theme:';
+        pauseThemeLabel.style.fontSize = '24px';
+        pauseThemeLabel.style.color = 'white';
+        pauseThemeLabel.style.marginRight = '10px';
+        pauseThemeLabel.style.alignSelf = 'center';
+        pauseThemeContainer.appendChild(pauseThemeLabel);
+
+        const createPauseThemeBtn = (text, theme) => {
+            const btn = document.createElement('button');
+            btn.innerText = text;
+            btn.style.fontSize = '24px';
+            btn.style.fontWeight = 'bold';
+            btn.style.padding = '10px 30px';
+            btn.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            btn.style.color = 'white';
+            btn.style.border = '2px solid white';
+            btn.style.borderRadius = '10px';
+            btn.style.cursor = 'pointer';
+            btn.addEventListener('click', () => {
+                if (this.game) {
+                    this.game.setTheme(theme);
+                    // Update button highlights in pause menu
+                    Array.from(pauseThemeContainer.children).forEach(c => {
+                        if (c.tagName === 'BUTTON') {
+                            c.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                            c.style.color = 'white';
+                        }
+                    });
+                    btn.style.backgroundColor = 'white';
+                    btn.style.color = 'black';
+                    // Also update main menu buttons if they exist
+                    const startThemeContainer = this.startScreen.querySelector('div[style*="gap: 20px"]');
+                    if (startThemeContainer) {
+                        Array.from(startThemeContainer.children).forEach(c => {
+                            if (c.tagName === 'BUTTON') {
+                                c.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                                c.style.color = 'white';
+                            }
+                        });
+                        if (theme === 'Day') {
+                            Array.from(startThemeContainer.children).find(c => c.innerText === 'Day').style.backgroundColor = 'white';
+                            Array.from(startThemeContainer.children).find(c => c.innerText === 'Day').style.color = 'black';
+                        } else {
+                            Array.from(startThemeContainer.children).find(c => c.innerText === 'Night').style.backgroundColor = 'white';
+                            Array.from(startThemeContainer.children).find(c => c.innerText === 'Night').style.color = 'black';
+                        }
+                    }
+                }
+            });
+            return btn;
+        };
+
+        const pauseDarkBtn = createPauseThemeBtn('Night', 'Night');
+        const pauseDayBtn = createPauseThemeBtn('Day', 'Day');
+
+        // Set initial highlight based on current theme
+        if (this.game && this.game.currentTheme === 'Day') {
+            pauseDayBtn.style.backgroundColor = 'white';
+            pauseDayBtn.style.color = 'black';
+        } else {
+            pauseDarkBtn.style.backgroundColor = 'white';
+            pauseDarkBtn.style.color = 'black';
+        }
+
+        pauseThemeContainer.appendChild(pauseDarkBtn);
+        pauseThemeContainer.appendChild(pauseDayBtn);
+        this.pauseMenu.appendChild(pauseThemeContainer);
+
+        // Store theme buttons for updating highlights
+        this.pauseThemeButtons = { night: pauseDarkBtn, day: pauseDayBtn };
+
         document.body.appendChild(this.pauseMenu);
 
         this.gameStarted = false;
@@ -384,6 +575,20 @@ export class HUD {
         this.isPaused = paused;
         if (this.isPaused) {
             this.pauseMenu.style.display = 'flex';
+            // Update theme button highlights to reflect current theme
+            if (this.pauseThemeButtons && this.game) {
+                if (this.game.currentTheme === 'Day') {
+                    this.pauseThemeButtons.day.style.backgroundColor = 'white';
+                    this.pauseThemeButtons.day.style.color = 'black';
+                    this.pauseThemeButtons.night.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    this.pauseThemeButtons.night.style.color = 'white';
+                } else {
+                    this.pauseThemeButtons.night.style.backgroundColor = 'white';
+                    this.pauseThemeButtons.night.style.color = 'black';
+                    this.pauseThemeButtons.day.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    this.pauseThemeButtons.day.style.color = 'white';
+                }
+            }
             if (this.input) this.input.exitPointerLock();
         } else {
             this.pauseMenu.style.display = 'none';
@@ -391,7 +596,7 @@ export class HUD {
         }
     }
 
-    update(speed, score, charge = 0, crashed = false, lives = 3, dead = false, won = false) {
+    update(speed, score, charge = 0, crashed = false, lives = 3, dead = false, won = false, level = 1, stamina = 1.0) {
         this.speedElement.innerText = `${Math.floor(speed)} km/h`;
         this.scoreElement.innerText = `SCORE: ${Math.floor(score)}`;
 
@@ -399,6 +604,7 @@ export class HUD {
         const hearts = '❤️ '.repeat(Math.max(0, lives));
         this.livesElement.innerText = hearts || '💀';
 
+        // Update jump charge bar
         const pct = Math.min(1.0, Math.max(0, charge)) * 100;
         this.chargeBar.style.width = `${pct}%`;
 
@@ -410,17 +616,58 @@ export class HUD {
             this.chargeBar.style.boxShadow = 'none';
         }
 
+        // Update stamina bar
+        const staminaPct = Math.min(1.0, Math.max(0, stamina)) * 100;
+        this.staminaBar.style.width = `${staminaPct}%`;
+        
+        // Change color based on stamina level
+        if (staminaPct > 50) {
+            this.staminaBar.style.backgroundColor = '#00ff00'; // Green
+        } else if (staminaPct > 25) {
+            this.staminaBar.style.backgroundColor = '#ffaa00'; // Orange
+        } else {
+            this.staminaBar.style.backgroundColor = '#ff0000'; // Red
+        }
+
         // Handle game states
         if (won) {
-            this.winMsg.style.display = 'block';
-            this.restartBtn.style.display = 'block';
-            this.nextLevelBtn.style.display = 'block'; // Show next level button
+            // Check if level 2 is complete (show game completion screen)
+            if (level === 2 && this.game && this.game.player) {
+                const player = this.game.player;
+                const maxSpeed = Math.floor(player.maxSpeed || 0);
+                const trickCount = player.trickCount || 0;
+                const totalTrickPoints = player.totalTrickPoints || 0;
+                const avgPointsPerTrick = trickCount > 0 ? Math.floor(totalTrickPoints / trickCount) : 0;
+
+                this.statsContainer.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-size: 48px; color: #ffcc00; margin-bottom: 30px; font-weight: bold;">FINAL STATISTICS</div>
+                        <div style="color: #00ffcc; margin: 15px 0;">🏆 Max Speed: <strong style="color: white;">${maxSpeed} km/h</strong></div>
+                        <div style="color: #00ffcc; margin: 15px 0;">🎯 Tricks Landed: <strong style="color: white;">${trickCount}</strong></div>
+                        <div style="color: #00ffcc; margin: 15px 0;">💯 Total Trick Points: <strong style="color: white;">${totalTrickPoints}</strong></div>
+                        <div style="color: #00ffcc; margin: 15px 0;">⭐ Average Points per Trick: <strong style="color: white;">${avgPointsPerTrick}</strong></div>
+                        <div style="color: #ffcc00; margin: 15px 0; margin-top: 30px;">🎊 Final Score: <strong style="color: #00ff00; font-size: 40px;">${Math.floor(score)}</strong></div>
+                    </div>
+                `;
+
+                this.gameCompleteScreen.style.display = 'flex';
+                this.winMsg.style.display = 'none';
+                this.restartBtn.style.display = 'none';
+                this.nextLevelBtn.style.display = 'none';
+            } else {
+                // Level 1 win - show normal win screen
+                this.gameCompleteScreen.style.display = 'none';
+                this.winMsg.style.display = 'block';
+                this.restartBtn.style.display = 'block';
+                this.nextLevelBtn.style.display = 'block'; // Show next level button
+            }
             this.crashMsg.style.display = 'none';
             this.gameOverMsg.style.display = 'none';
             if (this.input) {
                 this.input.exitPointerLock();
             }
         } else if (dead) {
+            this.gameCompleteScreen.style.display = 'none';
             this.gameOverMsg.style.display = 'block';
             this.restartBtn.style.display = 'block';
             this.crashMsg.style.display = 'none';
@@ -429,11 +676,13 @@ export class HUD {
                 this.input.exitPointerLock();
             }
         } else if (crashed) {
+            this.gameCompleteScreen.style.display = 'none';
             this.crashMsg.style.display = 'block';
             this.gameOverMsg.style.display = 'none';
             this.winMsg.style.display = 'none';
             this.restartBtn.style.display = 'none';
         } else {
+            this.gameCompleteScreen.style.display = 'none';
             this.crashMsg.style.display = 'none';
             this.gameOverMsg.style.display = 'none';
             this.winMsg.style.display = 'none';

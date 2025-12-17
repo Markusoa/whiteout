@@ -86,23 +86,18 @@ export class Level2Terrain {
 
                     if (intersects.length > 0) {
                         const hit = intersects[0];
+                        
+                        // Always place trees on mountain surface (removed slope check)
+                        const tree = treeModel.clone();
+                        tree.position.copy(hit.point);
+                        tree.position.y += 7.0;
+                        tree.rotation.y = Math.random() * Math.PI * 2;
 
-                        const obj = hit.object;
-                        const nMat = new THREE.Matrix3().getNormalMatrix(obj.matrixWorld);
-                        const normal = hit.face.normal.clone().applyMatrix3(nMat).normalize();
+                        const scale = 20.0 * (0.8 + Math.random() * 0.4);
+                        tree.scale.set(scale, scale, scale);
 
-                        if (normal.y > 0.6) {
-                            const tree = treeModel.clone();
-                            tree.position.copy(hit.point);
-                            tree.position.y += 7.0;
-                            tree.rotation.y = Math.random() * Math.PI * 2;
-
-                            const scale = 20.0 * (0.8 + Math.random() * 0.4);
-                            tree.scale.set(scale, scale, scale);
-
-                            this.mesh.add(tree);
-                            treesPlaced++;
-                        }
+                        this.mesh.add(tree);
+                        treesPlaced++;
                     }
                 }
             }
