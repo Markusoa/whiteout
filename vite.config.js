@@ -4,7 +4,7 @@ export default defineConfig({
   root: '.',
   publicDir: 'public',
   build: {
-    outDir: 'docs',
+    outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: true
   },
