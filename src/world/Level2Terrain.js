@@ -39,7 +39,7 @@ export class Level2Terrain {
 
             // Adjust Scale/Position (may need tuning)
             model.scale.set(1000, 1000, 1000);
-            model.position.set(0, -2500, 200);
+            model.position.set(0, -2500, 5);
 
             this.mesh.add(model);
             this.isLoaded = true;
@@ -86,7 +86,7 @@ export class Level2Terrain {
 
                     if (intersects.length > 0) {
                         const hit = intersects[0];
-                        
+
                         // Always place trees on mountain surface (removed slope check)
                         const tree = treeModel.clone();
                         tree.position.copy(hit.point);
@@ -108,6 +108,23 @@ export class Level2Terrain {
         });
     }
 
-    getHeight(x, z) { return 0; }
+    getHeight(x, z) {
+        if (!this.mesh) return null;
+
+        const raycaster = new THREE.Raycaster();
+        const down = new THREE.Vector3(0, -1, 0);
+
+        raycaster.set(new THREE.Vector3(x, 50000, z), down); // Higher start for Level 2
+        const intersects = raycaster.intersectObject(this.mesh, true); // true for recursive
+
+        if (intersects.length > 0) {
+            console.log(`[Level2Terrain] Hit at Y: ${intersects[0].point.y} on object: ${intersects[0].object.name}`);
+            return intersects[0].point.y;
+        } else {
+            console.warn(`[Level2Terrain] Raycast miss at ${x}, ${z}`);
+        }
+
+        return null;
+    }
     getNormal(x, z) { return new THREE.Vector3(0, 1, 0); }
 }
