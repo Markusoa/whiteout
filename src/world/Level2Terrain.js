@@ -39,7 +39,7 @@ export class Level2Terrain {
 
             // Adjust Scale/Position (may need tuning)
             model.scale.set(1000, 1000, 1000);
-            model.position.set(0, -2500, 5);
+            model.position.set(0, -5000, 5);
 
             this.mesh.add(model);
             this.isLoaded = true;

@@ -315,7 +315,7 @@ export class HUD {
 
         // Title
         const title = document.createElement('div');
-        title.innerText = 'SNOWBOARD SHRED';
+        title.innerText = 'Snowman Avalanche';
         title.style.fontSize = 'min(80px, 10vmin)';
         title.style.fontWeight = 'bold';
         title.style.color = '#00ffcc';
