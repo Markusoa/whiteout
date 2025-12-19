@@ -84,7 +84,7 @@ export class PlayerController {
             });
             model.position.y = 0.1;
             model.scale.set(0.5, 0.5, 0.5);
-            model.rotation.y = Math.PI;
+            // model.rotation.y = Math.PI; // Removed to fix reversed orientation
             this.mesh.add(model);
         }, undefined, (err) => {
             console.error("Failed to load snowman:", err);
@@ -248,10 +248,10 @@ export class PlayerController {
         // --- 1. MULTI-POINT RAYCAST GROUND CHECK ---
         const offsets = [
             new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(-0.3, 0, -0.7),
-            new THREE.Vector3(0.3, 0, -0.7),
-            new THREE.Vector3(-0.3, 0, 0.7),
-            new THREE.Vector3(0.3, 0, 0.7)
+            new THREE.Vector3(-0.35, 0, -1.4), // Wider & Longer (was -0.3, -0.7)
+            new THREE.Vector3(0.35, 0, -1.4),
+            new THREE.Vector3(-0.35, 0, 1.4), // Wider & Longer (was -0.3, 0.7)
+            new THREE.Vector3(0.35, 0, 1.4)
         ];
 
         let validHits = 0;
@@ -397,7 +397,7 @@ export class PlayerController {
                     groundNormal
                 );
                 const targetQ = new THREE.Quaternion().setFromRotationMatrix(targetMx);
-                this.quaternion.slerp(targetQ, dt * 10);
+                this.quaternion.slerp(targetQ, dt * 20); // Increased from 10 to 20 for faster alignment
             }
 
         } else {
